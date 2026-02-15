@@ -48,8 +48,24 @@ var db = firebase.database();
 function register(){
   var email = document.getElementById("email").value;
   var pass = document.getElementById("password").value;
+
   auth.createUserWithEmailAndPassword(email, pass)
-  .catch(e=>alert(e.message));
+  .then(function(userCredential){
+
+    var user = userCredential.user;
+    var secretId = "SL-" + Math.floor(100000 + Math.random()*900000);
+
+    db.ref("users/"+user.uid).set({
+      email: user.email,
+      secretId: secretId
+    });
+
+    alert("Account Created! Your Secret ID: " + secretId);
+
+  })
+  .catch(function(e){
+    alert(e.message);
+  });
 }
 
 function login(){
