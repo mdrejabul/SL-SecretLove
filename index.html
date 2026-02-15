@@ -18,6 +18,11 @@
 <div id="chat" style="display:none;">
   <p id="user"></p>
   <p id="myId"></p>
+  <br>
+<input id="partnerId" placeholder="Enter Partner Secret ID">
+<button onclick="addPartner()">Add Partner</button>
+<p id="partnerStatus"></p>
+<br>
   <button onclick="logout()">Logout</button><br><br>
 
   <input id="msg" placeholder="Type message">
@@ -80,6 +85,29 @@ function logout(){
   auth.signOut();
 }
 
+  function addPartner(){
+  var enteredId = document.getElementById("partnerId").value;
+  if(enteredId==="") return;
+
+  db.ref("users").once("value", function(snapshot){
+    var found = false;
+
+    snapshot.forEach(function(child){
+      var data = child.val();
+      if(data.secretId === enteredId){
+        found = true;
+        document.getElementById("partnerStatus").innerText =
+          "Partner Found: " + data.email;
+      }
+    });
+
+    if(!found){
+      document.getElementById("partnerStatus").innerText =
+        "No user found with this ID.";
+    }
+  });
+    }
+  
 function send(){
   var text = document.getElementById("msg").value;
   if(text==="") return;
