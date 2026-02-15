@@ -17,6 +17,7 @@
 
 <div id="chat" style="display:none;">
   <p id="user"></p>
+  <p id="myId"></p>
   <button onclick="logout()">Logout</button><br><br>
 
   <input id="msg" placeholder="Type message">
@@ -96,6 +97,14 @@ auth.onAuthStateChanged(function(user){
     document.getElementById("auth").style.display="none";
     document.getElementById("chat").style.display="block";
     document.getElementById("user").innerText="Logged in: "+user.email;
+    
+    db.ref("users/"+user.uid).once("value", function(snapshot){
+  var data = snapshot.val();
+  if(data){
+    document.getElementById("myId").innerText =
+      "Your Secret ID: " + data.secretId;
+  }
+});
 
     db.ref("chat").on("value", function(snapshot){
       var html="";
