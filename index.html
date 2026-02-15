@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Secret Love</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="background:#111;color:white;text-align:center;font-family:Arial;">
+
+<h2>💖 Secret Love</h2>
+
+<div id="auth">
+  <input id="email" type="email" placeholder="Email"><br><br>
+  <input id="password" type="password" placeholder="Password"><br><br>
+  <button onclick="register()">Register</button>
+  <button onclick="login()">Login</button>
+</div>
+
+<div id="chat" style="display:none;">
+  <p id="user"></p>
+  <button onclick="logout()">Logout</button><br><br>
+
+  <input id="msg" placeholder="Type message">
+  <button onclick="send()">Send</button>
+
+  <div id="messages"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyDSzTThXe9Nw1RG1zvfEWwkI5frlNOHYzA",
+  authDomain: "secret-love-c8d57.firebaseapp.com",
+  databaseURL: "https://secret-love-c8d57-default-rtdb.firebaseio.com",
+  projectId: "secret-love-c8d57",
+  storageBucket: "secret-love-c8d57.firebasestorage.app",
+  messagingSenderId: "249630233117",
+  appId: "1:249630233117:web:7e3b3380d05deb59272cf4"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+var auth = firebase.auth();
+var db = firebase.database();
+
+function register(){
+  var email = document.getElementById("email").value;
+  var pass = document.getElementById("password").value;
+  auth.createUserWithEmailAndPassword(email, pass)
+  .catch(e=>alert(e.message));
+}
+
+function login(){
+  var email = document.getElementById("email").value;
+  var pass = document.getElementById("password").value;
+  auth.signInWithEmailAndPassword(email, pass)
+  .catch(e=>alert(e.message));
+}
+
+function logout(){
+  auth.signOut();
+}
+
+function send(){
+  var text = document.getElementById("msg").value;
+  if(text==="") return;
+
+  db.ref("chat").push({
+    email: auth.currentUser.email,
+    message: text
+  });
+
+  document.getElementById("msg").value="";
+}
+
+auth.onAuthStateChanged(function(user){
+  if(user){
+    document.getElementById("auth").style.display="none";
+    document.getElementById("chat").style.display="block";
+    document.getElementById("user").innerText="Logged in: "+user.email;
+
+    db.ref("chat").on("value", function(snapshot){
+      var html="";
+      snapshot.forEach(function(child){
+        var data = child.val();
+        html += "<p>"+data.email+": "+data.message+"</p>";
+      });
+      document.getElementById("messages").innerHTML = html;
+    });
+
+  } else {
+    document.getElementById("auth").style.display="block";
+    document.getElementById("chat").style.display="none";
+  }
+});
+</script>
+
+</body>
+</html>
